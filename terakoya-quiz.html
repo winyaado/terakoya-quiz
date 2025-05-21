@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>寺子屋クイズ道場</title> <script src="https://cdn.tailwindcss.com"></script>
+    <title>寺子屋クイズ道場</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -255,20 +256,28 @@
         <div id="tabContainer">
             <div class="tab-buttons">
                 <button id="tabButtonStart" class="tab-button active" data-tab="start">クイズ開始</button>
-                <button id="tabButtonImport" class="tab-button" data-tab="import">問題束インポート</button> <button id="tabButtonSettings" class="tab-button" data-tab="settings">稽古設定</button> <button id="tabButtonInfo" class="tab-button" data-tab="info">成績確認</button> </div>
+                <button id="tabButtonImport" class="tab-button" data-tab="import">問題束インポート</button>
+                <button id="tabButtonSettings" class="tab-button" data-tab="settings">稽古設定</button>
+                <button id="tabButtonInfo" class="tab-button" data-tab="info">成績確認</button>
+            </div>
 
             <div id="tabContentStart" class="tab-content">
-                <h1 class="text-3xl font-bold mb-6 text-gray-800">寺子屋クイズ道場へようこそ！</h1> <div class="setting-item">
-                    <label for="quizSetSelect">挑戦する問題束:</label> <div class="flex">
+                <h1 class="text-3xl font-bold mb-6 text-gray-800">寺子屋クイズ道場へようこそ！</h1>
+                <div class="setting-item">
+                    <label for="quizSetSelect">挑戦する問題束:</label>
+                    <div class="flex">
                         <select id="quizSetSelect" class="flex-grow"></select>
                         <button id="deleteQuizSetButton" class="action-button delete-set-button ml-2">削除</button>
                     </div>
                 </div>
-                <p id="startScreenMessage" class="mb-8 text-lg text-gray-600">準備ができたら「稽古開始」を押してください。</p> <button id="startButton" class="action-button">稽古開始</button> <div id="startScreenInfo" class="text-sm text-gray-500"></div>
+                <p id="startScreenMessage" class="mb-8 text-lg text-gray-600">準備ができたら「稽古開始」を押してください。</p>
+                <button id="startButton" class="action-button">稽古開始</button>
+                <div id="startScreenInfo" class="text-sm text-gray-500"></div>
             </div>
 
             <div id="tabContentImport" class="tab-content hidden">
-                <h2 class="text-2xl font-bold mb-6 text-gray-800">問題束をインポート</h2> <p class="mb-4 text-gray-600">.tkquiz 形式 (Base64エンコードされたCSV) のファイルを選択してください。<br>CSV形式: 問題,回答1,回答2,回答3,回答4,正答,解説 (7列)</p>
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">問題束をインポート</h2>
+                <p class="mb-4 text-gray-600">.tkquiz 形式 (Base64エンコードされたCSV) のファイルを選択してください。<br>CSV形式: 問題,回答1,回答2,回答3,回答4,正答,解説 (7列)</p>
                 <label for="fileInput" class="file-input-label">ファイルを選択</label>
                 <input type="file" id="fileInput" class="hidden" accept=".tkquiz">
                 <div id="fileNameDisplay" class="mb-4">選択されていません</div>
@@ -277,8 +286,10 @@
             </div>
 
             <div id="tabContentSettings" class="tab-content hidden">
-                <h2 class="text-2xl font-bold mb-6 text-gray-800">稽古設定</h2> <div class="setting-item">
-                    <label for="numQuestionsInput">1回の問題数 (1問以上):</label> <input type="number" id="numQuestionsInput" min="1" value="20">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">稽古設定</h2>
+                <div class="setting-item">
+                    <label for="numQuestionsInput">1回の問題数 (1問以上):</label>
+                    <input type="number" id="numQuestionsInput" min="1" value="20">
                 </div>
                 <div class="setting-item">
                     <label for="timeLimitInput">問題ごとの制限時間 (秒, 1秒以上):</label>
@@ -289,7 +300,8 @@
             </div>
 
             <div id="tabContentInfo" class="tab-content hidden">
-                <h2 class="text-2xl font-bold mb-6 text-gray-800">問題別 成績確認</h2> <div id="questionStatsContainer">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">問題別 成績確認</h2>
+                <div id="questionStatsContainer">
                     <p id="noQuestionStatsMessage" class="text-gray-600">まだ解答履歴がありません。</p>
                     <table id="questionStatsTable" class="info-table hidden">
                         <thead>
@@ -339,24 +351,26 @@
         </div>
 
         <div id="resultScreen" class="hidden">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">稽古終了！</h2> <div id="score" class="score">あなたのスコア: 0 / 0</div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">稽古終了！</h2>
+            <div id="score" class="score">あなたのスコア: 0 / 0</div>
             <p id="finalMessage" class="mb-6 text-lg text-gray-600"></p>
             <button id="restartButton" class="action-button">もう一度挑戦</button>
-            <button id="backToTitleButton" class="action-button back-to-title-button block w-full mt-4">道場へ戻る</button> </div>
+            <button id="backToTitleButton" class="action-button back-to-title-button block w-full mt-4">道場へ戻る</button>
+        </div>
     </div>
 
     <script type="module">
         // --- localStorage Keys ---
-        const LS_KEY_SETTINGS_NUM_QUESTIONS = 'terakoyaQuizDojoNumQuestions_v1'; // キー名変更
-        const LS_KEY_SETTINGS_TIME_LIMIT = 'terakoyaQuizDojoTimeLimit_v1';   // キー名変更
-        const LS_KEY_QUESTION_STATS = 'terakoyaQuizDojoQuestionStats_v1';   // キー名変更
-        const LS_KEY_QUIZ_SETS = 'terakoyaQuizDojoQuizSets_v1';         // キー名変更
-        const LS_KEY_LAST_SELECTED_SET = 'terakoyaQuizDojoLastSelectedSet_v1';// キー名変更
+        const LS_KEY_SETTINGS_NUM_QUESTIONS = 'terakoyaQuizDojoNumQuestions_v1';
+        const LS_KEY_SETTINGS_TIME_LIMIT = 'terakoyaQuizDojoTimeLimit_v1';
+        const LS_KEY_QUESTION_STATS = 'terakoyaQuizDojoQuestionStats_v1';
+        const LS_KEY_QUIZ_SETS = 'terakoyaQuizDojoQuizSets_v1';
+        const LS_KEY_LAST_SELECTED_SET = 'terakoyaQuizDojoLastSelectedSet_v1';
 
 
         // --- デフォルトのクイズデータ ---
         const defaultQuizSet = {
-            name: "基本問題", // 「デフォルトクイズ」を「基本問題」に
+            name: "基本問題",
             data: [
                 { question: "日本の首都はどこですか？", choices: ["大阪", "京都", "東京", "名古屋"], correctAnswer: "東京", explanation: "日本の首都は東京です。" },
                 { question: "日本で一番高い山は何ですか？", choices: ["富士山", "北岳", "奥穂高岳", "間ノ岳"], correctAnswer: "富士山", explanation: "富士山は標高3,776メートルです。" },
@@ -489,13 +503,13 @@
             }
         }
         function updateStartScreenMessage() {
-            startScreenMessage.textContent = `各問題の制限時間は ${quizSettings.timeLimit} 秒、1回の稽古で ${quizSettings.numQuestions} 問出題されます。準備ができたら「稽古開始」を押してください。`; // ★ 文言変更
+            startScreenMessage.textContent = `各問題の制限時間は ${quizSettings.timeLimit} 秒、1回の稽古で ${quizSettings.numQuestions} 問出題されます。準備ができたら「稽古開始」を押してください。`;
             const selectedSet = quizSets.find(set => set.name === quizSetSelect.value);
             if (selectedSet) {
-                startScreenInfo.textContent = `選択中の問題束: ${selectedSet.name} (${selectedSet.data.length}問)`; // ★ 文言変更
+                startScreenInfo.textContent = `選択中の問題束: ${selectedSet.name} (${selectedSet.data.length}問)`;
             } else {
                 const defaultSetToDisplay = quizSets.find(set => set.name === defaultQuizSet.name) || defaultQuizSet;
-                startScreenInfo.textContent = `選択中の問題束: ${defaultSetToDisplay.name} (${defaultSetToDisplay.data.length}問)`; // ★ 文言変更
+                startScreenInfo.textContent = `選択中の問題束: ${defaultSetToDisplay.name} (${defaultSetToDisplay.data.length}問)`;
             }
         }
 
@@ -680,7 +694,7 @@
         function deleteSelectedQuizSet() {
             const selectedSetName = quizSetSelect.value;
             if (selectedSetName === defaultQuizSet.name) {
-                startScreenInfo.textContent = "基本問題は削除できません。"; // ★ 文言変更
+                startScreenInfo.textContent = "基本問題は削除できません。";
                 startScreenInfo.className = 'text-sm text-red-500';
                 setTimeout(() => { startScreenInfo.textContent = ''; updateStartScreenMessage(); }, 3000);
                 return;
@@ -688,7 +702,7 @@
             quizSets = quizSets.filter(set => set.name !== selectedSetName);
             saveQuizSets();
             populateQuizSetSelect();
-            startScreenInfo.textContent = `問題束「${selectedSetName}」を削除しました。`; // ★ 文言変更
+            startScreenInfo.textContent = `問題束「${selectedSetName}」を削除しました。`;
             startScreenInfo.className = 'text-sm text-green-500';
             setTimeout(() => { startScreenInfo.textContent = ''; updateStartScreenMessage(); }, 3000);
         }
@@ -735,7 +749,7 @@
                 return;
             }
             if (quizSetName.trim() === defaultQuizSet.name) {
-                importMessage.textContent = `「${defaultQuizSet.name}」という名前は基本問題用のため使用できません。ファイル名を変更してください。`; // ★ 文言変更
+                importMessage.textContent = `「${defaultQuizSet.name}」という名前は基本問題用のため使用できません。ファイル名を変更してください。`;
                 importMessage.className = 'mt-4 text-sm text-red-600';
                 importConfirmButton.disabled = false;
                 return;
@@ -825,7 +839,14 @@
             }
             try {
                 const statsString = JSON.stringify(questionStats);
-                const base64Stats = btoa(statsString);
+                // ★ UTF-8文字列をBase64エンコードする正しい方法
+                const utf8Bytes = new TextEncoder().encode(statsString);
+                let binaryString = '';
+                utf8Bytes.forEach(byte => {
+                    binaryString += String.fromCharCode(byte);
+                });
+                const base64Stats = btoa(binaryString);
+
                 const blob = new Blob([base64Stats], { type: 'text/plain;charset=utf-8' });
                 const now = new Date();
                 const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}`;
@@ -890,7 +911,13 @@
             reader.onload = function(e) {
                 try {
                     const base64Content = e.target.result;
-                    const jsonContent = atob(base64Content);
+                    // ★ Base64デコード後、UTF-8文字列として正しくデコード
+                    const binaryString = atob(base64Content);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    const jsonContent = new TextDecoder('utf-8').decode(bytes);
                     const parsedStats = JSON.parse(jsonContent);
 
                     if (typeof parsedStats === 'object' && parsedStats !== null) {
