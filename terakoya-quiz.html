@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寺子屋クイズ道場</title> <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 16px;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        /* Tab Styles */
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0; /* Tailwind gray-300 */
+        }
+        .tab-button {
+            padding: 10px 12px; /* Adjusted padding for more tabs */
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-size: 0.85rem; /* Slightly smaller for more tabs */
+            font-weight: 600;
+            color: #718096; /* Tailwind gray-500 */
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px; /* Align with container border */
+            transition: all 0.2s ease-in-out;
+        }
+        .tab-button.active {
+            color: #2d3748; /* Tailwind gray-800 */
+            border-bottom-color: #4299e1; /* Tailwind blue-500 */
+        }
+        .tab-button:hover:not(.active) {
+            color: #4a5568; /* Tailwind gray-700 */
+        }
+        .tab-content {}
+
+        /* Settings Tab Styles */
+        .setting-item {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        .setting-item label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .setting-item input[type="number"], .setting-item select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        #settingsMessage, #infoMessage, #startScreenInfo, #statsImportMessage {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        /* Info Tab Styles */
+        .info-table {
+            width: 100%;
+            margin-top: 16px;
+            border-collapse: collapse;
+        }
+        .info-table th, .info-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            text-align: left;
+            word-break: break-all; /* Ensure long text wraps */
+        }
+        .info-table th {
+            background-color: #f7fafc;
+            font-weight: 600;
+        }
+        .info-table td:first-child { /* Answer (key) column */
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        .choice-button {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            padding: 12px 16px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background-color: #e2e8f0;
+            color: #2d3748;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .choice-button:hover:not(:disabled) {
+            background-color: #cbd5e0;
+        }
+        .choice-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .choice-button.correct {
+            background-color: #68d391;
+            border-color: #48bb78;
+            color: white;
+        }
+        .choice-button.incorrect {
+            background-color: #fc8181;
+            border-color: #f56565;
+            color: white;
+        }
+        .timer-bar-container {
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            height: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .timer-bar {
+            background-color: #3b82f6;
+            height: 10px;
+            border-radius: 9999px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: width 0.1s linear;
+        }
+        .timer-text {
+            font-size: 0.875rem;
+            color: #4b5563;
+            margin-bottom: 4px;
+            text-align: right;
+        }
+        .question {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 24px;
+        }
+        #questionCounter { /* Style for question counter */
+            text-align: center;
+            color: #4a5568; /* Tailwind gray-700 */
+            font-weight: 600;
+        }
+        .feedback {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-top: 16px;
+            min-height: 28px;
+        }
+        .feedback.correct { color: #48bb78; }
+        .feedback.incorrect { color: #f56565; }
+        .feedback.timeup { color: #f6ad55; }
+        .explanation-area {
+            margin-top: 12px;
+            padding: 12px;
+            background-color: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 0.9rem;
+            color: #4a5568;
+            min-height: 40px;
+        }
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        .action-button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background-color: #4299e1;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .action-button:hover { background-color: #3182ce; }
+        #nextButton {
+            margin-top: 16px;
+            background-color: #38a169;
+        }
+        #nextButton:hover { background-color: #2f855a; }
+        .import-button {
+            background-color: #6366f1;
+        }
+        .import-button:hover { background-color: #4f46e5; }
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #e2e8f0;
+            color: #2d3748;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 16px;
+        }
+        .file-input-label:hover { background-color: #cbd5e0; }
+        #fileNameDisplay, #statsFileNameDisplay {
+            margin-top: 8px;
+            font-style: italic;
+            color: #718096; /* gray-500 */
+        }
+        .settings-button {
+            background-color: #ed8936;
+        }
+        .settings-button:hover { background-color: #dd6b20; }
+        .info-button, .delete-set-button, .export-stats-button, .import-stats-button {
+             background-color: #718096;
+        }
+        .info-button:hover, .delete-set-button:hover, .export-stats-button:hover, .import-stats-button:hover { background-color: #4a5568; }
+        .delete-set-button {
+            background-color: #e53e3e; /* Red for delete */
+            margin-left: 10px;
+        }
+        .delete-set-button:hover { background-color: #c53030; }
+        .export-stats-button { margin-top: 10px; background-color: #48bb78; } /* Green */
+        .export-stats-button:hover { background-color: #38a169; }
+        .import-stats-button { margin-top: 10px; background-color: #4299e1; } /* Blue */
+        .import-stats-button:hover { background-color: #3182ce; }
+
+
+        .back-to-title-button {
+            background-color: #a0aec0; /* gray-500 */
+            margin-top: 16px;
+        }
+        .back-to-title-button:hover { background-color: #718096; }
+    </style>
+</head>
+<body>
+    <div id="quizApp" class="quiz-container">
+        <div id="tabContainer">
+            <div class="tab-buttons">
+                <button id="tabButtonStart" class="tab-button active" data-tab="start">クイズ開始</button>
+                <button id="tabButtonImport" class="tab-button" data-tab="import">問題束インポート</button> <button id="tabButtonSettings" class="tab-button" data-tab="settings">稽古設定</button> <button id="tabButtonInfo" class="tab-button" data-tab="info">成績確認</button> </div>
+
+            <div id="tabContentStart" class="tab-content">
+                <h1 class="text-3xl font-bold mb-6 text-gray-800">寺子屋クイズ道場へようこそ！</h1> <div class="setting-item">
+                    <label for="quizSetSelect">挑戦する問題束:</label> <div class="flex">
+                        <select id="quizSetSelect" class="flex-grow"></select>
+                        <button id="deleteQuizSetButton" class="action-button delete-set-button ml-2">削除</button>
+                    </div>
+                </div>
+                <p id="startScreenMessage" class="mb-8 text-lg text-gray-600">準備ができたら「稽古開始」を押してください。</p> <button id="startButton" class="action-button">稽古開始</button> <div id="startScreenInfo" class="text-sm text-gray-500"></div>
+            </div>
+
+            <div id="tabContentImport" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">問題束をインポート</h2> <p class="mb-4 text-gray-600">.tkquiz 形式 (Base64エンコードされたCSV) のファイルを選択してください。<br>CSV形式: 問題,回答1,回答2,回答3,回答4,正答,解説 (7列)</p>
+                <label for="fileInput" class="file-input-label">ファイルを選択</label>
+                <input type="file" id="fileInput" class="hidden" accept=".tkquiz">
+                <div id="fileNameDisplay" class="mb-4">選択されていません</div>
+                <button id="importConfirmButton" class="action-button import-button mb-2 w-full" disabled>インポート実行</button>
+                <div id="importMessage" class="mt-4 text-sm"></div>
+            </div>
+
+            <div id="tabContentSettings" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">稽古設定</h2> <div class="setting-item">
+                    <label for="numQuestionsInput">1回の問題数 (1問以上):</label> <input type="number" id="numQuestionsInput" min="1" value="20">
+                </div>
+                <div class="setting-item">
+                    <label for="timeLimitInput">問題ごとの制限時間 (秒, 1秒以上):</label>
+                    <input type="number" id="timeLimitInput" min="1" value="30">
+                </div>
+                <button id="saveSettingsButton" class="action-button settings-button w-full mt-4">設定を保存</button>
+                <div id="settingsMessage" class="text-sm"></div>
+            </div>
+
+            <div id="tabContentInfo" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">問題別 成績確認</h2> <div id="questionStatsContainer">
+                    <p id="noQuestionStatsMessage" class="text-gray-600">まだ解答履歴がありません。</p>
+                    <table id="questionStatsTable" class="info-table hidden">
+                        <thead>
+                            <tr>
+                                <th>正答 (キー)</th>
+                                <th>正解数</th>
+                                <th>誤答数</th>
+                                <th>出題数</th>
+                                <th>正解率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="questionStatsBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button id="exportStatsButton" class="action-button export-stats-button w-full">解答履歴をエクスポート</button>
+                    <div>
+                        <label for="statsFileInput" class="file-input-label w-full text-center">解答履歴ファイルを選択 (.tkstats)</label>
+                        <input type="file" id="statsFileInput" class="hidden" accept=".tkstats">
+                        <div id="statsFileNameDisplay" class="mb-2 text-sm">選択されていません</div>
+                        <button id="importStatsButton" class="action-button import-stats-button w-full" disabled>解答履歴をインポート</button>
+                    </div>
+                </div>
+                <button id="resetQuestionStatsButton" class="action-button info-button w-full mt-6">解答履歴をリセット</button>
+                <div id="statsImportMessage" class="text-sm"></div>
+                <div id="infoMessage" class="text-sm"></div>
+            </div>
+        </div>
+
+        <div id="quizScreen" class="hidden">
+            <div id="questionCounter" class="text-sm text-gray-600 mb-2"></div>
+            <div id="timerContainerOuter" class="mb-4">
+                <div id="timerTextDisplay" class="timer-text">残り時間: <span id="timeLeftValue">10</span>秒</div>
+                <div class="timer-bar-container">
+                    <div id="timeBar" class="timer-bar" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div id="question" class="question">ここに問題文が表示されます。</div>
+            <div id="choices" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"></div>
+            <div id="feedback" class="feedback"></div>
+            <div id="explanationArea" class="explanation-area hidden">
+                <strong class="block mb-1">解説:</strong>
+                <span id="explanationText"></span>
+            </div>
+            <button id="nextButton" class="action-button hidden">次の問題へ</button>
+        </div>
+
+        <div id="resultScreen" class="hidden">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">稽古終了！</h2> <div id="score" class="score">あなたのスコア: 0 / 0</div>
+            <p id="finalMessage" class="mb-6 text-lg text-gray-600"></p>
+            <button id="restartButton" class="action-button">もう一度挑戦</button>
+            <button id="backToTitleButton" class="action-button back-to-title-button block w-full mt-4">道場へ戻る</button> </div>
+    </div>
+
+    <script type="module">
+        // --- localStorage Keys ---
+        const LS_KEY_SETTINGS_NUM_QUESTIONS = 'terakoyaQuizDojoNumQuestions_v1'; // キー名変更
+        const LS_KEY_SETTINGS_TIME_LIMIT = 'terakoyaQuizDojoTimeLimit_v1';   // キー名変更
+        const LS_KEY_QUESTION_STATS = 'terakoyaQuizDojoQuestionStats_v1';   // キー名変更
+        const LS_KEY_QUIZ_SETS = 'terakoyaQuizDojoQuizSets_v1';         // キー名変更
+        const LS_KEY_LAST_SELECTED_SET = 'terakoyaQuizDojoLastSelectedSet_v1';// キー名変更
+
+
+        // --- デフォルトのクイズデータ ---
+        const defaultQuizSet = {
+            name: "基本問題", // 「デフォルトクイズ」を「基本問題」に
+            data: [
+                { question: "日本の首都はどこですか？", choices: ["大阪", "京都", "東京", "名古屋"], correctAnswer: "東京", explanation: "日本の首都は東京です。" },
+                { question: "日本で一番高い山は何ですか？", choices: ["富士山", "北岳", "奥穂高岳", "間ノ岳"], correctAnswer: "富士山", explanation: "富士山は標高3,776メートルです。" },
+                { question: "寿司の主成分は何ですか？", choices: ["米", "パン", "パスタ", "じゃがいも"], correctAnswer: "米", explanation: "寿司は酢飯とネタで構成されます。" },
+                { question: "「こんにちは」を英語で言うと？", choices: ["Goodbye", "Hello", "Thank you", "Sorry"], correctAnswer: "Hello", explanation: "Helloは一般的な挨拶です。" },
+                { question: "太陽系の惑星で、地球の隣にある赤い惑星は何ですか？", choices: ["金星", "火星", "木星", "土星"], correctAnswer: "火星", explanation: "火星は地球の外側を公転しており、酸化鉄の影響で赤く見えます。" }
+            ]
+        };
+        let quizSets = [];
+        let currentQuizData = [];
+        let currentPlaySet = [];
+
+        // --- クイズ設定 ---
+        let quizSettings = {
+            numQuestions: 20,
+            timeLimit: 30
+        };
+        // --- 問題別統計情報 ---
+        let questionStats = {};
+
+        // --- HTML要素の取得 ---
+        const tabContainer = document.getElementById('tabContainer');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const tabButtonStart = document.getElementById('tabButtonStart');
+        const tabButtonImport = document.getElementById('tabButtonImport');
+        const tabButtonSettings = document.getElementById('tabButtonSettings');
+        const tabButtonInfo = document.getElementById('tabButtonInfo');
+        const tabContentStart = document.getElementById('tabContentStart');
+        const tabContentImport = document.getElementById('tabContentImport');
+        const tabContentSettings = document.getElementById('tabContentSettings');
+        const tabContentInfo = document.getElementById('tabContentInfo');
+        const startScreenMessage = document.getElementById('startScreenMessage');
+        const quizSetSelect = document.getElementById('quizSetSelect');
+        const deleteQuizSetButton = document.getElementById('deleteQuizSetButton');
+        const startScreenInfo = document.getElementById('startScreenInfo');
+        const questionCounterEl = document.getElementById('questionCounter');
+
+
+        const questionStatsContainer = document.getElementById('questionStatsContainer');
+        const noQuestionStatsMessage = document.getElementById('noQuestionStatsMessage');
+        const questionStatsTable = document.getElementById('questionStatsTable');
+        const questionStatsBody = document.getElementById('questionStatsBody');
+        const resetQuestionStatsButton = document.getElementById('resetQuestionStatsButton');
+        const infoMessage = document.getElementById('infoMessage');
+        const exportStatsButton = document.getElementById('exportStatsButton');
+        const statsFileInput = document.getElementById('statsFileInput');
+        const statsFileNameDisplay = document.getElementById('statsFileNameDisplay');
+        const importStatsButton = document.getElementById('importStatsButton');
+        const statsImportMessage = document.getElementById('statsImportMessage');
+
+
+        const startButton = document.getElementById('startButton');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const importConfirmButton = document.getElementById('importConfirmButton');
+        const importMessage = document.getElementById('importMessage');
+        const numQuestionsInput = document.getElementById('numQuestionsInput');
+        const timeLimitInput = document.getElementById('timeLimitInput');
+        const saveSettingsButton = document.getElementById('saveSettingsButton');
+        const settingsMessage = document.getElementById('settingsMessage');
+        const restartButton = document.getElementById('restartButton');
+        const backToTitleButton = document.getElementById('backToTitleButton');
+        const nextButton = document.getElementById('nextButton');
+        const timeLeftValueEl = document.getElementById('timeLeftValue');
+        const timeBarEl = document.getElementById('timeBar');
+        const questionEl = document.getElementById('question');
+        const choicesEl = document.getElementById('choices');
+        const feedbackEl = document.getElementById('feedback');
+        const explanationAreaEl = document.getElementById('explanationArea');
+        const explanationTextEl = document.getElementById('explanationText');
+        const scoreEl = document.getElementById('score');
+        const finalMessageEl = document.getElementById('finalMessage');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 0;
+        let timerInterval = null;
+        let selectedQuizSetFile = null;
+        let selectedStatsFile = null;
+
+        // --- イベントリスナー ---
+        tabButtonStart.addEventListener('click', () => openTab('start'));
+        tabButtonImport.addEventListener('click', () => openTab('import'));
+        tabButtonSettings.addEventListener('click', () => openTab('settings'));
+        tabButtonInfo.addEventListener('click', () => openTab('info'));
+        startButton.addEventListener('click', executeQuiz);
+        fileInput.addEventListener('change', handleFileSelect);
+        importConfirmButton.addEventListener('click', handleImportConfirm);
+        saveSettingsButton.addEventListener('click', saveSettings);
+        resetQuestionStatsButton.addEventListener('click', resetQuestionStats);
+        restartButton.addEventListener('click', executeQuiz);
+        backToTitleButton.addEventListener('click', showTabScreen);
+        nextButton.addEventListener('click', proceedToNext);
+        quizSetSelect.addEventListener('change', handleQuizSetChange);
+        deleteQuizSetButton.addEventListener('click', deleteSelectedQuizSet);
+        exportStatsButton.addEventListener('click', exportStatistics);
+        statsFileInput.addEventListener('change', handleStatsFileSelect);
+        importStatsButton.addEventListener('click', importStatistics);
+
+        // --- タブ制御関数 ---
+        function openTab(tabName) {
+            tabContentStart.classList.add('hidden');
+            tabContentImport.classList.add('hidden');
+            tabContentSettings.classList.add('hidden');
+            tabContentInfo.classList.add('hidden');
+            tabButtonStart.classList.remove('active');
+            tabButtonImport.classList.remove('active');
+            tabButtonSettings.classList.remove('active');
+            tabButtonInfo.classList.remove('active');
+
+            if (tabName === 'start') {
+                tabContentStart.classList.remove('hidden');
+                tabButtonStart.classList.add('active');
+                populateQuizSetSelect();
+                updateStartScreenMessage();
+                resetImportForm();
+            } else if (tabName === 'import') {
+                tabContentImport.classList.remove('hidden');
+                tabButtonImport.classList.add('active');
+            } else if (tabName === 'settings') {
+                tabContentSettings.classList.remove('hidden');
+                tabButtonSettings.classList.add('active');
+                loadSettingsToUI();
+            } else if (tabName === 'info') {
+                tabContentInfo.classList.remove('hidden');
+                tabButtonInfo.classList.add('active');
+                displayQuestionStats();
+                resetStatsImportForm();
+            }
+        }
+        function updateStartScreenMessage() {
+            startScreenMessage.textContent = `各問題の制限時間は ${quizSettings.timeLimit} 秒、1回の稽古で ${quizSettings.numQuestions} 問出題されます。準備ができたら「稽古開始」を押してください。`; // ★ 文言変更
+            const selectedSet = quizSets.find(set => set.name === quizSetSelect.value);
+            if (selectedSet) {
+                startScreenInfo.textContent = `選択中の問題束: ${selectedSet.name} (${selectedSet.data.length}問)`; // ★ 文言変更
+            } else {
+                const defaultSetToDisplay = quizSets.find(set => set.name === defaultQuizSet.name) || defaultQuizSet;
+                startScreenInfo.textContent = `選択中の問題束: ${defaultSetToDisplay.name} (${defaultSetToDisplay.data.length}問)`; // ★ 文言変更
+            }
+        }
+
+        // --- 設定管理関数 (localStorage) ---
+        function loadSettings() {
+            const storedNumQuestions = localStorage.getItem(LS_KEY_SETTINGS_NUM_QUESTIONS);
+            const storedTimeLimit = localStorage.getItem(LS_KEY_SETTINGS_TIME_LIMIT);
+            quizSettings.numQuestions = storedNumQuestions ? parseInt(storedNumQuestions, 10) : quizSettings.numQuestions;
+            quizSettings.timeLimit = storedTimeLimit ? parseInt(storedTimeLimit, 10) : quizSettings.timeLimit;
+            if (quizSettings.numQuestions < 1) quizSettings.numQuestions = 20;
+            if (quizSettings.timeLimit < 1) quizSettings.timeLimit = 30;
+            loadSettingsToUI();
+            updateStartScreenMessage();
+        }
+        function loadSettingsToUI() {
+            numQuestionsInput.value = quizSettings.numQuestions;
+            timeLimitInput.value = quizSettings.timeLimit;
+        }
+        function saveSettings() {
+            const numQ = parseInt(numQuestionsInput.value, 10);
+            const timeL = parseInt(timeLimitInput.value, 10);
+            if (isNaN(numQ) || numQ < 1) {
+                settingsMessage.textContent = '問題数は1以上の数値を入力してください。';
+                settingsMessage.className = 'text-sm text-red-600'; return;
+            }
+            if (isNaN(timeL) || timeL < 1) {
+                settingsMessage.textContent = '制限時間は1以上の数値を入力してください。';
+                settingsMessage.className = 'text-sm text-red-600'; return;
+            }
+            quizSettings.numQuestions = numQ;
+            quizSettings.timeLimit = timeL;
+            localStorage.setItem(LS_KEY_SETTINGS_NUM_QUESTIONS, quizSettings.numQuestions);
+            localStorage.setItem(LS_KEY_SETTINGS_TIME_LIMIT, quizSettings.timeLimit);
+            settingsMessage.textContent = '設定を保存しました。';
+            settingsMessage.className = 'text-sm text-green-600';
+            updateStartScreenMessage();
+            setTimeout(() => { settingsMessage.textContent = ''; }, 3000);
+        }
+
+        // --- 問題別統計情報関数 (localStorage) ---
+        function loadQuestionStats() {
+            const storedStats = localStorage.getItem(LS_KEY_QUESTION_STATS);
+            try {
+                if (storedStats && storedStats !== "null" && storedStats !== "undefined") {
+                    questionStats = JSON.parse(storedStats);
+                    if (typeof questionStats !== 'object' || questionStats === null) {
+                        questionStats = {};
+                    }
+                } else {
+                    questionStats = {};
+                }
+            } catch (e) {
+                questionStats = {};
+            }
+        }
+
+        function saveQuestionStats() {
+            try {
+                localStorage.setItem(LS_KEY_QUESTION_STATS, JSON.stringify(questionStats));
+            } catch (e) {
+                console.error(`saveQuestionStats: localStorageへの保存に失敗しました:`, e);
+            }
+        }
+
+        function updateQuestionStat(correctAnswer, isCorrect, questionText) {
+            const statKey = correctAnswer;
+            if (!questionStats[statKey]) {
+                questionStats[statKey] = { questionText: questionText, correct: 0, incorrect: 0, total: 0 };
+            } else if (!questionStats[statKey].questionText && questionText) {
+                questionStats[statKey].questionText = questionText;
+            }
+            questionStats[statKey].total = (questionStats[statKey].total || 0) + 1;
+            if (isCorrect) {
+                questionStats[statKey].correct = (questionStats[statKey].correct || 0) + 1;
+            } else {
+                questionStats[statKey].incorrect = (questionStats[statKey].incorrect || 0) + 1;
+            }
+            saveQuestionStats();
+        }
+
+        function displayQuestionStats() {
+            questionStatsBody.innerHTML = '';
+            const statsArray = Object.entries(questionStats);
+            if (statsArray.length === 0) {
+                noQuestionStatsMessage.classList.remove('hidden');
+                questionStatsTable.classList.add('hidden');
+                return;
+            }
+            noQuestionStatsMessage.classList.add('hidden');
+            questionStatsTable.classList.remove('hidden');
+            questionStatsTable.querySelector('thead th:first-child').textContent = '正答 (キー)';
+
+            statsArray.forEach(([correctAnswerKey, stats]) => {
+                const row = questionStatsBody.insertRow();
+                const displayKey = correctAnswerKey;
+                const correct = stats.correct || 0;
+                const incorrect = stats.incorrect || 0;
+                const total = stats.total || 0;
+                const accuracy = total > 0 ? ((correct / total) * 100).toFixed(1) + '%' : 'N/A';
+                row.insertCell().textContent = displayKey;
+                row.insertCell().textContent = correct;
+                row.insertCell().textContent = incorrect;
+                row.insertCell().textContent = total;
+                row.insertCell().textContent = accuracy;
+            });
+        }
+        function resetQuestionStats() {
+            questionStats = {};
+            localStorage.removeItem(LS_KEY_QUESTION_STATS);
+            displayQuestionStats();
+            infoMessage.textContent = "解答履歴をリセットしました。";
+            infoMessage.className = 'text-sm text-green-600';
+            setTimeout(() => { infoMessage.textContent = ''; }, 3000);
+        }
+
+        // --- クイズセット管理関数 ---
+        function loadQuizSets() {
+            const storedSets = localStorage.getItem(LS_KEY_QUIZ_SETS);
+            quizSets = [];
+            if (storedSets) {
+                try {
+                    const parsedSets = JSON.parse(storedSets);
+                    if (Array.isArray(parsedSets)) {
+                        quizSets = parsedSets;
+                    }
+                } catch (e) {
+                    console.error("loadQuizSets: localStorageのクイズセットデータのパースに失敗しました。", e);
+                }
+            }
+            if (!quizSets.find(set => set.name === defaultQuizSet.name)) {
+                quizSets.unshift({...defaultQuizSet});
+            }
+            populateQuizSetSelect();
+        }
+
+        function saveQuizSets() {
+            try {
+                const setsToStore = quizSets.filter(set => set.name !== defaultQuizSet.name);
+                localStorage.setItem(LS_KEY_QUIZ_SETS, JSON.stringify(setsToStore));
+            } catch (e) {
+                console.error("saveQuizSets: localStorageへのクイズセット保存に失敗:", e);
+            }
+        }
+
+        function populateQuizSetSelect() {
+            quizSetSelect.innerHTML = '';
+            quizSets.forEach(set => {
+                const option = document.createElement('option');
+                option.value = set.name;
+                option.textContent = `${set.name} (${set.data.length}問)`;
+                quizSetSelect.appendChild(option);
+            });
+            const lastSelected = localStorage.getItem(LS_KEY_LAST_SELECTED_SET);
+            if (lastSelected && quizSets.find(set => set.name === lastSelected)) {
+                quizSetSelect.value = lastSelected;
+            } else if (quizSets.length > 0) {
+                 quizSetSelect.value = quizSets[0].name;
+            }
+            handleQuizSetChange();
+        }
+
+        function handleQuizSetChange() {
+            const selectedSetName = quizSetSelect.value;
+            const selectedSet = quizSets.find(set => set.name === selectedSetName);
+            if (selectedSet) {
+                currentQuizData = selectedSet.data;
+                localStorage.setItem(LS_KEY_LAST_SELECTED_SET, selectedSetName);
+            } else {
+                currentQuizData = defaultQuizSet.data;
+                localStorage.setItem(LS_KEY_LAST_SELECTED_SET, defaultQuizSet.name);
+                if (quizSets.length > 0 && !quizSets.find(set => set.name === defaultQuizSet.name)) {
+                    quizSetSelect.value = quizSets[0].name;
+                    currentQuizData = quizSets[0].data;
+                } else {
+                    quizSetSelect.value = defaultQuizSet.name;
+                }
+            }
+            updateStartScreenMessage();
+            deleteQuizSetButton.disabled = (selectedSetName === defaultQuizSet.name);
+        }
+
+        function deleteSelectedQuizSet() {
+            const selectedSetName = quizSetSelect.value;
+            if (selectedSetName === defaultQuizSet.name) {
+                startScreenInfo.textContent = "基本問題は削除できません。"; // ★ 文言変更
+                startScreenInfo.className = 'text-sm text-red-500';
+                setTimeout(() => { startScreenInfo.textContent = ''; updateStartScreenMessage(); }, 3000);
+                return;
+            }
+            quizSets = quizSets.filter(set => set.name !== selectedSetName);
+            saveQuizSets();
+            populateQuizSetSelect();
+            startScreenInfo.textContent = `問題束「${selectedSetName}」を削除しました。`; // ★ 文言変更
+            startScreenInfo.className = 'text-sm text-green-500';
+            setTimeout(() => { startScreenInfo.textContent = ''; updateStartScreenMessage(); }, 3000);
+        }
+
+
+        // --- 画面制御関数 (タブ表示への移行) ---
+        function showTabScreen() {
+            tabContainer.classList.remove('hidden');
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            openTab('start');
+        }
+
+        // --- インポート関連関数 ---
+        function resetImportForm() { // Quiz Set Import Form
+            fileInput.value = ''; selectedQuizSetFile = null;
+            fileNameDisplay.textContent = '選択されていません';
+            importConfirmButton.disabled = true;
+            importMessage.textContent = ''; importMessage.className = 'mt-4 text-sm';
+        }
+        function handleFileSelect(event) { // Quiz Set Import
+            selectedQuizSetFile = event.target.files[0];
+            if (selectedQuizSetFile) {
+                if (selectedQuizSetFile.name.endsWith('.tkquiz')) {
+                    fileNameDisplay.textContent = `選択中のファイル: ${selectedQuizSetFile.name}`;
+                    importConfirmButton.disabled = false; importMessage.textContent = '';
+                } else {
+                    fileNameDisplay.textContent = 'エラー: .tkquiz 形式のファイルを選択してください。';
+                    importConfirmButton.disabled = true; selectedQuizSetFile = null;
+                    importMessage.textContent = '無効なファイル形式です。';
+                    importMessage.className = 'mt-4 text-sm text-red-600';
+                }
+            } else { resetImportForm(); }
+        }
+        function handleImportConfirm() { // Quiz Set Import
+            if (!selectedQuizSetFile) {
+                importMessage.textContent = 'ファイルが選択されていません。';
+                importMessage.className = 'mt-4 text-sm text-red-600'; return;
+            }
+            const quizSetName = selectedQuizSetFile.name.replace(/\.tkquiz$/i, '');
+            if (!quizSetName || quizSetName.trim() === "") {
+                importMessage.textContent = 'ファイル名からセット名を取得できませんでした。';
+                importMessage.className = 'mt-4 text-sm text-red-600';
+                return;
+            }
+            if (quizSetName.trim() === defaultQuizSet.name) {
+                importMessage.textContent = `「${defaultQuizSet.name}」という名前は基本問題用のため使用できません。ファイル名を変更してください。`; // ★ 文言変更
+                importMessage.className = 'mt-4 text-sm text-red-600';
+                importConfirmButton.disabled = false;
+                return;
+            }
+
+            importMessage.textContent = 'インポート処理中...';
+            importMessage.className = 'mt-4 text-sm text-blue-600';
+            importConfirmButton.disabled = true;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const base64Text = e.target.result;
+                    const binaryString = atob(base64Text);
+                    const len = binaryString.length; const bytes = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) { bytes[i] = binaryString.charCodeAt(i); }
+                    const decoder = new TextDecoder('utf-8');
+                    const csvContent = decoder.decode(bytes);
+                    const newQuizDataSet = parseCSVToQuizData(csvContent);
+                    if (newQuizDataSet.length > 0) {
+                        const existingSetIndex = quizSets.findIndex(set => set.name === quizSetName.trim());
+                        if (existingSetIndex > -1) {
+                            quizSets[existingSetIndex].data = newQuizDataSet;
+                        } else {
+                            quizSets.push({ name: quizSetName.trim(), data: newQuizDataSet });
+                        }
+                        saveQuizSets();
+                        populateQuizSetSelect();
+                        quizSetSelect.value = quizSetName.trim();
+                        handleQuizSetChange();
+
+                        importMessage.textContent = `インポート成功！「${quizSetName.trim()}」(${newQuizDataSet.length}問) が登録/更新されました。`;
+                        importMessage.className = 'mt-4 text-sm text-green-600';
+                        setTimeout(() => { openTab('start'); }, 2500);
+                    } else { throw new Error("CSVデータが空か、パースできませんでした。"); }
+                } catch (error) {
+                    console.error("インポートエラー:", error);
+                    let errorMessageText = `インポートエラー: `;
+                    if (error && error.message) {
+                        errorMessageText += `${error.message}. `;
+                        if (error.name === 'InvalidCharacterError' || error.message.toLowerCase().includes('atob')) {
+                             errorMessageText += "Base64デコードに失敗しました。";
+                        } else if (error.message.toLowerCase().includes('malformed utf-8') || error.message.toLowerCase().includes('failed to decode')) {
+                            errorMessageText += "UTF-8デコードに失敗しました。";
+                        }
+                    } else { errorMessageText += "原因不明のエラー。"; }
+                    importMessage.textContent = errorMessageText;
+                    importMessage.className = 'mt-4 text-sm text-red-600';
+                    importConfirmButton.disabled = false;
+                }
+            };
+            reader.onerror = function() {
+                importMessage.textContent = 'ファイル読み込みエラー。';
+                importMessage.className = 'mt-4 text-sm text-red-600';
+                importConfirmButton.disabled = false;
+            };
+            reader.readAsText(selectedQuizSetFile);
+        }
+        function parseCSVToQuizData(csvString) {
+            const newQuizzes = [];
+            const cleanedCsvString = csvString.charCodeAt(0) === 0xFEFF ? csvString.substring(1) : csvString;
+            const lines = cleanedCsvString.trim().split(/\r?\n/);
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                if (line.trim() === "") continue;
+                const parts = line.split(',');
+                if (parts.length === 7) { // 問題,回答1,回答2,回答3,回答4,正答,解説
+                    try {
+                        newQuizzes.push({
+                            question: parts[0].trim(),
+                            choices: [parts[1].trim(), parts[2].trim(), parts[3].trim(), parts[4].trim()],
+                            correctAnswer: parts[5].trim(),
+                            explanation: parts[6].trim()
+                        });
+                    } catch (e) { console.warn(`CSV行の処理エラー ${i + 1}: ${line}`, e); }
+                } else { console.warn(`無効なCSV行 ${i + 1} (列数: ${parts.length}, 期待値: 7): ${line}`); }
+            }
+            return newQuizzes;
+        }
+
+        // --- 解答履歴のエクスポート・インポート関数 ---
+        function exportStatistics() {
+            if (Object.keys(questionStats).length === 0) {
+                infoMessage.textContent = "エクスポートする解答履歴がありません。";
+                infoMessage.className = 'text-sm text-yellow-600';
+                setTimeout(() => { infoMessage.textContent = ''; }, 3000);
+                return;
+            }
+            try {
+                const statsString = JSON.stringify(questionStats);
+                const base64Stats = btoa(statsString);
+                const blob = new Blob([base64Stats], { type: 'text/plain;charset=utf-8' });
+                const now = new Date();
+                const timestamp = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}`;
+                const fileName = `quiz_stats_${timestamp}.tkstats`;
+
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+                infoMessage.textContent = "解答履歴をエクスポートしました。";
+                infoMessage.className = 'text-sm text-green-600';
+                setTimeout(() => { infoMessage.textContent = ''; }, 3000);
+            } catch (e) {
+                console.error("解答履歴のエクスポートに失敗:", e);
+                infoMessage.textContent = "エクスポートに失敗しました。";
+                infoMessage.className = 'text-sm text-red-600';
+                setTimeout(() => { infoMessage.textContent = ''; }, 3000);
+            }
+        }
+
+        function handleStatsFileSelect(event) {
+            selectedStatsFile = event.target.files[0];
+            if (selectedStatsFile) {
+                if (selectedStatsFile.name.endsWith('.tkstats')) {
+                    statsFileNameDisplay.textContent = `選択中のファイル: ${selectedStatsFile.name}`;
+                    importStatsButton.disabled = false;
+                    statsImportMessage.textContent = '';
+                } else {
+                    statsFileNameDisplay.textContent = 'エラー: .tkstats 形式のファイルを選択してください。';
+                    importStatsButton.disabled = true;
+                    selectedStatsFile = null;
+                    statsImportMessage.textContent = '無効なファイル形式です。';
+                    statsImportMessage.className = 'text-sm text-red-600';
+                }
+            } else {
+                resetStatsImportForm();
+            }
+        }
+        function resetStatsImportForm() {
+            statsFileInput.value = '';
+            selectedStatsFile = null;
+            statsFileNameDisplay.textContent = '選択されていません';
+            importStatsButton.disabled = true;
+            statsImportMessage.textContent = '';
+            statsImportMessage.className = 'text-sm';
+        }
+
+        function importStatistics() {
+            if (!selectedStatsFile) {
+                statsImportMessage.textContent = 'ファイルが選択されていません。';
+                statsImportMessage.className = 'text-sm text-red-600';
+                return;
+            }
+            statsImportMessage.textContent = '解答履歴をインポート処理中...';
+            statsImportMessage.className = 'text-sm text-blue-600';
+            importStatsButton.disabled = true;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const base64Content = e.target.result;
+                    const jsonContent = atob(base64Content);
+                    const parsedStats = JSON.parse(jsonContent);
+
+                    if (typeof parsedStats === 'object' && parsedStats !== null) {
+                        questionStats = parsedStats;
+                        saveQuestionStats();
+                        displayQuestionStats();
+                        statsImportMessage.textContent = '解答履歴をインポートしました。';
+                        statsImportMessage.className = 'text-sm text-green-600';
+                    } else {
+                        throw new Error("インポートされたデータが適切な形式ではありません。");
+                    }
+                } catch (error) {
+                    console.error("解答履歴のインポートエラー:", error);
+                    statsImportMessage.textContent = `インポートエラー: ${error.message}`;
+                    statsImportMessage.className = 'text-sm text-red-600';
+                } finally {
+                    resetStatsImportForm();
+                }
+            };
+            reader.onerror = function() {
+                statsImportMessage.textContent = 'ファイル読み込みエラーが発生しました。';
+                statsImportMessage.className = 'text-sm text-red-600';
+                resetStatsImportForm();
+            };
+            reader.readAsText(selectedStatsFile);
+        }
+
+
+        // --- クイズ実行関数 ---
+        function executeQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            let allQuestionsInSelectedSet = [...currentQuizData];
+            let playSet = [];
+
+            const totalQuestionsToSelect = Math.min(quizSettings.numQuestions, allQuestionsInSelectedSet.length);
+            if (totalQuestionsToSelect === 0) {
+                currentPlaySet = [];
+                tabContainer.classList.add('hidden');
+                quizScreen.classList.remove('hidden');
+                resultScreen.classList.add('hidden');
+                questionEl.textContent = "出題できるクイズがありません。セットを選択またはインポートしてください。";
+                setTimeout(showTabScreen, 3000);
+                return;
+            }
+
+            let unansweredQuestions = allQuestionsInSelectedSet.filter(q => !questionStats.hasOwnProperty(q.correctAnswer));
+            unansweredQuestions.sort(() => 0.5 - Math.random());
+
+            let answeredIncorrectlyHigh = allQuestionsInSelectedSet.filter(q => questionStats.hasOwnProperty(q.correctAnswer))
+                .map(q => ({
+                    ...q,
+                    stat: questionStats[q.correctAnswer],
+                    errorRate: (questionStats[q.correctAnswer].total > 0) ?
+                               (questionStats[q.correctAnswer].incorrect / questionStats[q.correctAnswer].total) : 0
+                }))
+                .sort((a, b) => b.errorRate - a.errorRate || 0.5 - Math.random());
+
+            let answeredOthers = allQuestionsInSelectedSet.filter(q =>
+                questionStats.hasOwnProperty(q.correctAnswer) &&
+                !answeredIncorrectlyHigh.find(aiq => aiq.correctAnswer === q.correctAnswer)
+            );
+            answeredOthers.sort(() => 0.5 - Math.random());
+
+            let numUnanswered = Math.ceil(totalQuestionsToSelect * 0.6);
+            let numHighError = Math.floor(totalQuestionsToSelect * 0.3);
+
+            numUnanswered = Math.min(numUnanswered, unansweredQuestions.length);
+            playSet.push(...unansweredQuestions.slice(0, numUnanswered));
+
+            let remainingSlots = totalQuestionsToSelect - playSet.length;
+            numHighError = Math.min(numHighError, answeredIncorrectlyHigh.length, remainingSlots);
+            playSet.push(...answeredIncorrectlyHigh.slice(0, numHighError));
+
+            remainingSlots = totalQuestionsToSelect - playSet.length;
+            if (remainingSlots > 0) {
+                const numRandom = Math.min(remainingSlots, answeredOthers.length);
+                playSet.push(...answeredOthers.slice(0, numRandom));
+            }
+
+            if (playSet.length < totalQuestionsToSelect) {
+                let combinedRemaining = allQuestionsInSelectedSet.filter(q => !playSet.find(ps => ps.correctAnswer === q.correctAnswer));
+                combinedRemaining.sort(() => 0.5 - Math.random());
+                playSet.push(...combinedRemaining.slice(0, totalQuestionsToSelect - playSet.length));
+            }
+
+            currentPlaySet = playSet.sort(() => 0.5 - Math.random());
+
+            if (currentPlaySet.length === 0 && allQuestionsInSelectedSet.length > 0) {
+                 currentPlaySet = allQuestionsInSelectedSet.sort(() => 0.5 - Math.random()).slice(0, Math.min(allQuestionsInSelectedSet.length, 1));
+            }
+
+            tabContainer.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            resultScreen.classList.add('hidden');
+            nextButton.classList.add('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearTimeout(timerInterval);
+            feedbackEl.textContent = ''; feedbackEl.className = 'feedback';
+            explanationAreaEl.classList.add('hidden'); explanationTextEl.textContent = '';
+            choicesEl.innerHTML = ''; nextButton.classList.add('hidden');
+            questionCounterEl.textContent = `${currentQuestionIndex + 1} / ${currentPlaySet.length} 問目`;
+
+
+            if (currentPlaySet.length === 0) {
+                questionEl.textContent = "出題するクイズがありません。";
+                setTimeout(showTabScreen, 3000); return;
+            }
+            if (currentQuestionIndex >= currentPlaySet.length) {
+                showResults(); return;
+            }
+            const currentQuestion = currentPlaySet[currentQuestionIndex];
+            questionEl.textContent = currentQuestion.question;
+            timeLeft = quizSettings.timeLimit;
+            timeBarEl.style.transition = 'none'; timeBarEl.style.width = '100%';
+            setTimeout(() => { timeBarEl.style.transition = 'width 0.1s linear'; updateTimerDisplay(); }, 0);
+            const shuffledChoices = [...currentQuestion.choices];
+            for (let i = shuffledChoices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledChoices[i], shuffledChoices[j]] = [shuffledChoices[j], shuffledChoices[i]];
+            }
+            shuffledChoices.forEach(choice => {
+                const button = document.createElement('button');
+                button.textContent = choice; button.classList.add('choice-button');
+                button.addEventListener('click', () => selectAnswer(choice, button, currentQuestion.correctAnswer, currentQuestion.question));
+                choicesEl.appendChild(button);
+            });
+            enableChoiceButtons(); startTimer();
+        }
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1; updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    timeLeft = 0; updateTimerDisplay();
+                    clearInterval(timerInterval); handleTimeUp();
+                }
+            }, 100);
+        }
+        function updateTimerDisplay() {
+            timeLeftValueEl.textContent = Math.ceil(timeLeft);
+            const percentage = quizSettings.timeLimit > 0 ? Math.max(0, (timeLeft / quizSettings.timeLimit) * 100) : 0;
+            timeBarEl.style.width = percentage + '%';
+        }
+        function selectAnswer(selectedChoice, selectedButton, correctAnswer, questionText) {
+            clearInterval(timerInterval); disableChoiceButtons(); updateTimerDisplay();
+            const currentQuestion = currentPlaySet[currentQuestionIndex];
+            const isCorrect = selectedChoice === correctAnswer;
+            updateQuestionStat(correctAnswer, isCorrect, questionText);
+            if (isCorrect) {
+                score++; feedbackEl.textContent = '正解！';
+                feedbackEl.classList.add('correct'); selectedButton.classList.add('correct');
+            } else {
+                feedbackEl.textContent = `不正解！ 正解は「${correctAnswer}」です。`;
+                feedbackEl.classList.add('incorrect'); selectedButton.classList.add('incorrect');
+                highlightCorrectAnswer(correctAnswer);
+            }
+            showExplanation(currentQuestion.explanation); nextButton.classList.remove('hidden');
+        }
+        function handleTimeUp() {
+            disableChoiceButtons();
+            const currentQuestion = currentPlaySet[currentQuestionIndex];
+            updateQuestionStat(currentQuestion.correctAnswer, false, currentQuestion.question);
+            const correctAnswer = currentQuestion.correctAnswer;
+            feedbackEl.textContent = `時間切れ！ 正解は「${correctAnswer}」です。`;
+            feedbackEl.classList.add('timeup'); highlightCorrectAnswer(correctAnswer);
+            timeBarEl.style.width = '0%';
+            showExplanation(currentQuestion.explanation); nextButton.classList.remove('hidden');
+        }
+        function showExplanation(explanation) {
+            if (explanation && explanation.trim() !== "") {
+                explanationTextEl.textContent = explanation;
+                explanationAreaEl.classList.remove('hidden');
+            } else { explanationAreaEl.classList.add('hidden'); }
+        }
+        function highlightCorrectAnswer(correctAnswer) {
+            const buttons = choicesEl.getElementsByTagName('button');
+            for (let button of buttons) {
+                if (button.textContent === correctAnswer) { button.classList.add('correct'); break; }
+            }
+        }
+        function disableChoiceButtons() {
+            const buttons = choicesEl.getElementsByTagName('button');
+            for (let button of buttons) { button.disabled = true; }
+        }
+        function enableChoiceButtons() {
+            const buttons = choicesEl.getElementsByTagName('button');
+            for (let button of buttons) { button.disabled = false; }
+        }
+        function proceedToNext() {
+            currentQuestionIndex++; loadQuestion();
+        }
+        function showResults() {
+            quizScreen.classList.add('hidden'); resultScreen.classList.remove('hidden');
+            scoreEl.textContent = `あなたのスコア: ${score} / ${currentPlaySet.length}`;
+            let message = "";
+            const percentage = currentPlaySet.length > 0 ? (score / currentPlaySet.length) * 100 : 0;
+            if (currentPlaySet.length === 0) { message = "出題されたクイズはありませんでした。"; }
+            else if (percentage === 100) { message = "全問正解！素晴らしい！🎉"; }
+            else if (percentage >= 75) { message = "よくできました！あと少し！👍"; }
+            else if (percentage >= 50) { message = "まずまずの成績ですね！😊"; }
+            else { message = "もう少し頑張りましょう！💪"; }
+            finalMessageEl.textContent = message;
+        }
+
+        // --- 初期化 ---
+        function main() {
+            console.log("main: アプリ初期化開始 (localStorage版 v7 - 解答履歴エクスポート・インポート)");
+            loadQuizSets();
+            loadSettings();
+            loadQuestionStats();
+            showTabScreen();
+            console.log("main: アプリ初期化完了、UI表示 (localStorage版 v7 - 解答履歴エクスポート・インポート)");
+        }
+
+        main();
+
+    </script>
+</body>
+</html>
